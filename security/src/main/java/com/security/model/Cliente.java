@@ -17,6 +17,13 @@ public class Cliente {
 		this.whatsapp = whatsapp;
 	}
 
+	public Cliente(String nombre, String apellido, String dni, String whatsapp) {
+		this.nombre = nombre;
+		this.apellido = apellido;
+		this.dni = dni;
+		this.whatsapp = whatsapp;
+	}
+
 	public Integer getId() {
 		return id;
 	}

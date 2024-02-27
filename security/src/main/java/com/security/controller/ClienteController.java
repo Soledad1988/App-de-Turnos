@@ -1,6 +1,7 @@
 package com.security.controller;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.sql.Connection;
 import com.security.conection.Conexion;
 import com.security.dao.ClienteDAO;
@@ -19,4 +20,8 @@ public class ClienteController {
     public void save(Cliente cliente) {
     	this.clienteDao.save(cliente);
     }
+    
+    public List<Cliente> listar() {
+		return this.clienteDao.listar();
+	}
 }

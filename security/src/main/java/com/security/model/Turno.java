@@ -1,7 +1,6 @@
 package com.security.model;
 
 import java.sql.Date;
-import java.util.Random;
 
 public class Turno {
 
@@ -22,13 +21,6 @@ public class Turno {
 		this.fecha = fecha;
 	}
 
-
-	public Turno(Integer idCliente) {
-        this.IdCliente = idCliente;
-        // Generar un número aleatorio del 1 al 20 para el turno
-        Random random = new Random();
-        this.turno = random.nextInt(20) + 1;
-    }
 
 	public Integer getIdTurno() {
 		return IdTurno;

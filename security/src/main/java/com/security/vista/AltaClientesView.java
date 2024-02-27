@@ -7,8 +7,9 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Date;
 import java.sql.SQLException;
-import javax.swing.ImageIcon;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -19,6 +20,7 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 import com.security.controller.ClienteController;
+import com.security.controller.TurnoController;
 import com.security.model.Cliente;
 
 
@@ -32,7 +34,7 @@ public class AltaClientesView extends JFrame {
     private JTable tabla;
     private DefaultTableModel modelo;
     private ClienteController clienteController;
-
+    private TurnoController turnoController;
     
     private JTextField textoWatsapp;
     
@@ -54,6 +56,7 @@ public class AltaClientesView extends JFrame {
         super("Clientes");
 
         this.clienteController = new ClienteController();
+        this.turnoController = new TurnoController();
 
         Container container = getContentPane();
         getContentPane().setLayout(null);
@@ -62,20 +65,17 @@ public class AltaClientesView extends JFrame {
 
         configurarTablaDeContenido(container);
         
+        cargarTabla();
         
         JLabel lblWatsapp = new JLabel("Watsapp");
+        lblWatsapp.setFont(new Font("Tahoma", Font.BOLD, 14));
         lblWatsapp.setForeground(Color.BLACK);
-        lblWatsapp.setBounds(22, 161, 104, 15);
+        lblWatsapp.setBounds(365, 96, 104, 25);
         getContentPane().add(lblWatsapp);
         
         textoWatsapp = new JTextField();
-        textoWatsapp.setBounds(147, 158, 128, 20);
+        textoWatsapp.setBounds(514, 97, 128, 20);
         getContentPane().add(textoWatsapp);
-        
-        JLabel Logo = new JLabel("");
-        Logo.setIcon(new ImageIcon("C:\\Users\\brent\\OneDrive\\Escritorio\\otros\\java\\img\\anteojos.jpg"));
-        Logo.setBounds(401, 48, 281, 212);
-        getContentPane().add(Logo);
         
         JLabel lblTitulo = new JLabel("Asignación de Turnos");
         lblTitulo.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 20));
@@ -93,6 +93,7 @@ public class AltaClientesView extends JFrame {
         modelo.addColumn("Id");
         modelo.addColumn("Nombre");
         modelo.addColumn("Apellido");
+        modelo.addColumn("DNI");
         modelo.addColumn("Whatsapp");
         modelo.addColumn("Turno");
         
@@ -108,10 +109,10 @@ public class AltaClientesView extends JFrame {
         container.add(tabla);
         
         JScrollPane scrollPane = new JScrollPane(tabla);
-        scrollPane.setBounds(10, 271, 760, 182);
+        scrollPane.setBounds(10, 184, 760, 182);
         container.add(scrollPane);
 
-        setSize(800, 526);
+        setSize(800, 431);
         setVisible(true);
         setLocationRelativeTo(null);
     }
@@ -119,12 +120,15 @@ public class AltaClientesView extends JFrame {
 
     private void configurarCamposDelFormulario(Container container) {
         labelNombre = new JLabel("Nombre");
+        labelNombre.setFont(new Font("Tahoma", Font.BOLD, 14));
         labelApellido = new JLabel("Apellido");
+        labelApellido.setFont(new Font("Tahoma", Font.BOLD, 14));
         labelDni = new JLabel("DNI");
+        labelDni.setFont(new Font("Tahoma", Font.BOLD, 14));
 
-        labelNombre.setBounds(22, 60, 95, 15);
-        labelApellido.setBounds(22, 86, 115, 15);
-        labelDni.setBounds(22, 120, 115, 15);
+        labelNombre.setBounds(22, 60, 95, 25);
+        labelApellido.setBounds(22, 96, 115, 19);
+        labelDni.setBounds(365, 60, 115, 15);
         
         labelNombre.setForeground(Color.BLACK);
         labelApellido.setForeground(Color.BLACK);
@@ -135,11 +139,12 @@ public class AltaClientesView extends JFrame {
         textoDni = new JTextField();
         
         textoNombre.setBounds(147, 57, 128, 20);
-        textoApellido.setBounds(147, 86, 128, 20);
-        textoDni.setBounds(147, 117, 128, 20);
+        textoApellido.setBounds(147, 97, 128, 20);
+        textoDni.setBounds(514, 57, 128, 20);
 
         botonAAsignarTurno = new JButton("Asignar Turno");
-        botonAAsignarTurno.setBounds(59, 224, 171, 20);
+        botonAAsignarTurno.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        botonAAsignarTurno.setBounds(298, 132, 171, 41);
 
         container.add(labelNombre);
         container.add(labelApellido);
@@ -165,39 +170,66 @@ public class AltaClientesView extends JFrame {
     	
 
     }
-/*
+
     private List<Cliente> ListarClientes() {
 		return this.clienteController.listar();
    }
      
-   private void cargarTabla() {			       
-	    //Llenar Tabla
-		List<Cliente> cliente = ListarClientes();
-		try {
-			for (Cliente clientes : cliente) {
-				modelo.addRow(new Object[] { 
-						clientes.getId(),  
-						clientes.getNombre(), 
-						clientes.getApellido(), 
-						clientes.getWhatsapp()});
-			}
-		} catch (Exception e) {
-			throw e;
-		}
-	}*/
+    private void cargarTabla() {			       
+        // Limpiar la tabla antes de cargar los datos
+        modelo.setRowCount(0);
+
+        // Llenar la tabla con los clientes y sus turnos
+        List<Cliente> clientes = ListarClientes();
+        for (Cliente cliente : clientes) {
+            // Obtener el turno del cliente para la fecha actual
+            Date fecha = new Date(System.currentTimeMillis());
+            int turno = this.turnoController.obtenerTurno(cliente.getId(), fecha);
+            
+            // Agregar los datos del cliente y su turno a la tabla
+            modelo.addRow(new Object[] { 
+                cliente.getId(),
+                cliente.getNombre(),
+                cliente.getApellido(),
+                cliente.getDni(),
+                cliente.getWhatsapp(),
+                turno // Agregar el turno del cliente a la tabla
+            });
+        }
+    }
+
     
-   private void guardar(){
-	    Cliente cliente = new Cliente(
-	            textoNombre.getText(),
-	            textoApellido.getText(),
-	            textoDni.getText(),
-	            textoWatsapp.getText());
+    private void guardar() {
+        // Crear un nuevo objeto Cliente con los datos ingresados en la vista
+        Cliente cliente = new Cliente(
+                textoNombre.getText(),
+                textoApellido.getText(),
+                textoDni.getText(),
+                textoWatsapp.getText());
 
-	    this.clienteController.save(cliente);
+        // Guardar el cliente en la base de datos
+        this.clienteController.save(cliente);
 
-	    JOptionPane.showMessageDialog(this, "Registrado con éxito!");
+        // Obtener el ID del cliente recién insertado en la base de datos
+        int idCliente = cliente.getId();
 
-	}
-    
+        // Obtener la fecha actual
+        Date fecha = new Date(System.currentTimeMillis());
+
+        // Obtener el turno actual del cliente
+        int turno = this.turnoController.obtenerTurno(idCliente, fecha);
+
+        if (turno <= 20) {
+            // Asignar el turno al cliente en la base de datos
+            this.turnoController.asignarTurno(idCliente, fecha);
+            JOptionPane.showMessageDialog(this, "Turno asignado con éxito! Su turno es el número: " + turno);
+        } else {
+            JOptionPane.showMessageDialog(this, "Se han asignado todos los turnos para hoy. Intente mañana.");
+        }
+
+        // Después de asignar el turno, cargar nuevamente la tabla para reflejar los cambios
+        cargarTabla();
+    }
+
 	
 }

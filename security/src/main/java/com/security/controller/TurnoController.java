@@ -25,4 +25,5 @@ private TurnoDAO turnoDao;
     public int obtenerTurno(int idCliente, Date fecha) {
         return turnoDao.obtenerTurno(idCliente, fecha);
     }
+    
 }

@@ -1,6 +1,6 @@
 package com.security.model;
 
-public class Cliente {
+public class Paciente {
 
 	private Integer id;
 	private String nombre;
@@ -8,7 +8,7 @@ public class Cliente {
 	private String dni;
 	private String whatsapp;
 	
-	public Cliente(Integer id, String nombre, String apellido, String dni, String whatsapp) {
+	public Paciente(Integer id, String nombre, String apellido, String dni, String whatsapp) {
 		super();
 		this.id = id;
 		this.nombre = nombre;
@@ -17,7 +17,7 @@ public class Cliente {
 		this.whatsapp = whatsapp;
 	}
 
-	public Cliente(String nombre, String apellido, String dni, String whatsapp) {
+	public Paciente(String nombre, String apellido, String dni, String whatsapp) {
 		this.nombre = nombre;
 		this.apellido = apellido;
 		this.dni = dni;

@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -19,9 +21,17 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-import com.security.controller.ClienteController;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import com.security.model.Paciente;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import com.security.controller.PacienteController;
 import com.security.controller.TurnoController;
-import com.security.model.Cliente;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class AltaClientesView extends JFrame {
@@ -33,9 +43,9 @@ public class AltaClientesView extends JFrame {
     private JButton botonAAsignarTurno;
     private JTable tabla;
     private DefaultTableModel modelo;
-    private ClienteController clienteController;
+    private PacienteController pacienteController;
     private TurnoController turnoController;
-    
+    private JButton botonExportarExcel; // Nuevo botón para exportar a Excel
     private JTextField textoWatsapp;
     
     
@@ -55,9 +65,12 @@ public class AltaClientesView extends JFrame {
     public AltaClientesView() throws SQLException {
         super("Clientes");
 
-        this.clienteController = new ClienteController();
+        this.pacienteController = new PacienteController();
         this.turnoController = new TurnoController();
 
+        // Configurar el nivel de registro para la clase ZipPackage a WARN
+        Logger.getLogger("org.apache.poi.openxml4j.opc.ZipPackage").setLevel(Level.WARNING);
+        
         Container container = getContentPane();
         getContentPane().setLayout(null);
 
@@ -81,6 +94,12 @@ public class AltaClientesView extends JFrame {
         lblTitulo.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 20));
         lblTitulo.setBounds(275, 0, 281, 30);
         getContentPane().add(lblTitulo);
+        
+     // Configurar botón para exportar a Excel
+        botonExportarExcel = new JButton("Exportar a Excel");
+        botonExportarExcel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        botonExportarExcel.setBounds(633, 5, 143, 41);
+        container.add(botonExportarExcel);
 
         configurarAccionesDelFormulario();
     }
@@ -109,7 +128,7 @@ public class AltaClientesView extends JFrame {
         container.add(tabla);
         
         JScrollPane scrollPane = new JScrollPane(tabla);
-        scrollPane.setBounds(10, 184, 760, 182);
+        scrollPane.setBounds(16, 184, 760, 182);
         container.add(scrollPane);
 
         setSize(800, 431);
@@ -168,24 +187,30 @@ public class AltaClientesView extends JFrame {
             
         });
     	
+    	botonExportarExcel.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                exportarAExcel();
+            }
+        });
+    	
 
     }
 
-    private List<Cliente> ListarClientes() {
-		return this.clienteController.listar();
+    private List<Paciente> ListarPacientes() {
+		return this.pacienteController.listar();
    }
      
     
     private void guardar() {
         // Crear un nuevo objeto Cliente con los datos ingresados en la vista
-        Cliente cliente = new Cliente(
+        Paciente cliente = new Paciente(
                 textoNombre.getText(),
                 textoApellido.getText(),
                 textoDni.getText(),
                 textoWatsapp.getText());
 
         // Guardar el cliente en la base de datos
-        this.clienteController.save(cliente);
+        this.pacienteController.save(cliente);
 
         // Obtener el ID del cliente recién insertado en la base de datos
         int idCliente = cliente.getId();
@@ -220,25 +245,76 @@ public class AltaClientesView extends JFrame {
         modelo.setRowCount(0);
 
         // Llenar la tabla con los clientes y sus turnos
-        List<Cliente> clientes = ListarClientes();
-        for (Cliente cliente : clientes) {
+        List<Paciente> pacientes = ListarPacientes();
+        for (Paciente paciente : pacientes) {
             // Obtener el turno del cliente para la fecha actual
             Date fecha = new Date(System.currentTimeMillis());
-            int turno = this.turnoController.obtenerTurno(cliente.getId(), fecha);
+            int turno = this.turnoController.obtenerTurno(paciente.getId(), fecha);
 
             // Agregar los datos del cliente y su turno a la tabla
             modelo.addRow(new Object[]{
-                    cliente.getId(),
-                    cliente.getNombre(),
-                    cliente.getApellido(),
-                    cliente.getDni(),
-                    cliente.getWhatsapp(),
+            		paciente.getId(),
+            		paciente.getNombre(),
+            		paciente.getApellido(),
+            		paciente.getDni(),
+            		paciente.getWhatsapp(),
                     turno // Agregar el turno del cliente a la tabla
             });
         }
         
         // Notificar a la tabla que los datos han cambiado y que necesita actualizarse
         modelo.fireTableDataChanged();
+    }
+    
+ // Método para exportar a Excel
+    private void exportarAExcel() {
+    	 // Obtener la fecha actual
+        LocalDate fechaActual = LocalDate.now();
+        // Formatear la fecha actual en el formato deseado para incluirla en el nombre del archivo
+        String fechaFormateada = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(fechaActual);
+
+        // Obtener los datos de la tabla
+        List<Paciente> pacientes = ListarPacientes();
+        
+        // Crear el nombre del archivo con la fecha actual
+        String nombreArchivo = "clientes_y_turnos_" + fechaFormateada + ".xlsx";
+
+        // Definir la ruta del directorio donde se guardarán los archivos
+        String rutaDirectorio = "C:\\Users\\brent\\OneDrive\\Escritorio\\turnos\\";
+
+        // Combinar la ruta del directorio con el nombre del archivo para obtener la ruta completa
+        String rutaCompleta = rutaDirectorio + nombreArchivo;
+
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Clientes y Turnos");
+            int rowNum = 0;
+            Row headerRow = sheet.createRow(rowNum++);
+            String[] headers = {"ID", "Nombre", "Apellido", "DNI", "Whatsapp", "Turno"};
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+            }
+            for (Paciente paciente : pacientes) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(paciente.getId());
+                row.createCell(1).setCellValue(paciente.getNombre());
+                row.createCell(2).setCellValue(paciente.getApellido());
+                row.createCell(3).setCellValue(paciente.getDni());
+                row.createCell(4).setCellValue(paciente.getWhatsapp());
+                // Aquí debes obtener el turno del cliente y establecerlo en la celda correspondiente
+                row.createCell(5).setCellValue(turnoController.obtenerTurno(paciente.getId(), new Date(System.currentTimeMillis())));
+            }
+            
+            
+            try (FileOutputStream fileOut = new FileOutputStream(rutaCompleta)) {
+                workbook.write(fileOut);
+                System.out.println("Archivo Excel creado correctamente.");
+                JOptionPane.showMessageDialog(this, "Datos exportados a Excel correctamente.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al exportar datos a Excel: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
 	

@@ -24,4 +24,5 @@ public class ClienteController {
     public List<Cliente> listar() {
 		return this.clienteDao.listar();
 	}
+    
 }

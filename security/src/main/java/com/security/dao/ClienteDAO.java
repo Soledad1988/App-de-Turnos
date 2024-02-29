@@ -25,15 +25,15 @@ public class ClienteDAO {
     	String sql = "INSERT INTO clientes (nombre, apellido ,dni, whatsapp) VALUES (?, ?, ?, ?)";
     	
     	try (PreparedStatement stm = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
-    		stm.setString(1, cliente.getNombre());
-    		stm.setString(2, cliente.getApellido());
-    		stm.setString(3, cliente.getDni());
-    		stm.setString(4, cliente.getWhatsapp());
-    		stm.execute();
+    	    stm.setString(1, cliente.getNombre());
+    	    stm.setString(2, cliente.getApellido());
+    	    stm.setString(3, cliente.getDni());
+    	    stm.setString(4, cliente.getWhatsapp());
+    	    stm.executeUpdate(); // Usar executeUpdate en lugar de execute
     		
-    		try(ResultSet rst = stm.getGeneratedKeys()){
-    			while(rst.next()) {
-    				cliente.setId(1);
+    	    try(ResultSet rst = stm.getGeneratedKeys()){
+    	        while(rst.next()) {
+    	            cliente.setId(rst.getInt(1));
     			}
     		}
     		
@@ -59,6 +59,7 @@ public class ClienteDAO {
 			throw new RuntimeException(e);
 		}
 	}
+    
     
     private void transformarResultSetEnCliente(List<Cliente> clientes, PreparedStatement pstm) {
         ResultSet rst = null;

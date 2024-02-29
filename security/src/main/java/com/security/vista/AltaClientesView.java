@@ -175,29 +175,6 @@ public class AltaClientesView extends JFrame {
 		return this.clienteController.listar();
    }
      
-    private void cargarTabla() {			       
-        // Limpiar la tabla antes de cargar los datos
-        modelo.setRowCount(0);
-
-        // Llenar la tabla con los clientes y sus turnos
-        List<Cliente> clientes = ListarClientes();
-        for (Cliente cliente : clientes) {
-            // Obtener el turno del cliente para la fecha actual
-            Date fecha = new Date(System.currentTimeMillis());
-            int turno = this.turnoController.obtenerTurno(cliente.getId(), fecha);
-            
-            // Agregar los datos del cliente y su turno a la tabla
-            modelo.addRow(new Object[] { 
-                cliente.getId(),
-                cliente.getNombre(),
-                cliente.getApellido(),
-                cliente.getDni(),
-                cliente.getWhatsapp(),
-                turno // Agregar el turno del cliente a la tabla
-            });
-        }
-    }
-
     
     private void guardar() {
         // Crear un nuevo objeto Cliente con los datos ingresados en la vista
@@ -216,19 +193,52 @@ public class AltaClientesView extends JFrame {
         // Obtener la fecha actual
         Date fecha = new Date(System.currentTimeMillis());
 
-        // Obtener el turno actual del cliente
+        // Asignar el turno al cliente en la base de datos
+        this.turnoController.asignarTurno(idCliente, fecha);
+
+        // Actualizar la tabla para reflejar los cambios
+        cargarTabla();
+
+        // Obtener el turno actual del cliente DESPUÉS de asignarlo
         int turno = this.turnoController.obtenerTurno(idCliente, fecha);
 
         if (turno <= 20) {
-            // Asignar el turno al cliente en la base de datos
-            this.turnoController.asignarTurno(idCliente, fecha);
             JOptionPane.showMessageDialog(this, "Turno asignado con éxito! Su turno es el número: " + turno);
+            // Limpiar los campos del formulario después de asignar el turno
+            textoNombre.setText("");
+            textoApellido.setText("");
+            textoDni.setText("");
+            textoWatsapp.setText("");
+        
         } else {
             JOptionPane.showMessageDialog(this, "Se han asignado todos los turnos para hoy. Intente mañana.");
         }
+    }
+    
+    private void cargarTabla() {
+        // Limpiar la tabla antes de cargar los datos
+        modelo.setRowCount(0);
 
-        // Después de asignar el turno, cargar nuevamente la tabla para reflejar los cambios
-        cargarTabla();
+        // Llenar la tabla con los clientes y sus turnos
+        List<Cliente> clientes = ListarClientes();
+        for (Cliente cliente : clientes) {
+            // Obtener el turno del cliente para la fecha actual
+            Date fecha = new Date(System.currentTimeMillis());
+            int turno = this.turnoController.obtenerTurno(cliente.getId(), fecha);
+
+            // Agregar los datos del cliente y su turno a la tabla
+            modelo.addRow(new Object[]{
+                    cliente.getId(),
+                    cliente.getNombre(),
+                    cliente.getApellido(),
+                    cliente.getDni(),
+                    cliente.getWhatsapp(),
+                    turno // Agregar el turno del cliente a la tabla
+            });
+        }
+        
+        // Notificar a la tabla que los datos han cambiado y que necesita actualizarse
+        modelo.fireTableDataChanged();
     }
 
 	

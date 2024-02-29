@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.security.model.Paciente;
+
 public class TurnoDAO {
 
 final private Connection con;
@@ -28,7 +30,7 @@ final private Connection con;
         int siguienteTurno = turnosAsignados + 1;
 
         // Resto del código para insertar el turno en la base de datos
-        String sqlTurno = "INSERT INTO turnos (clienteId, turno, fecha) VALUES (?, ?, ?)";
+        String sqlTurno = "INSERT INTO turnos (pacienteId, turno, fecha) VALUES (?, ?, ?)";
         try (PreparedStatement stmTurno = con.prepareStatement(sqlTurno)) {
             stmTurno.setInt(1, idCliente);
             stmTurno.setInt(2, siguienteTurno);
@@ -56,15 +58,15 @@ final private Connection con;
         return turnosAsignados;
     }
     
-    public int obtenerTurno(int idCliente, Date fecha) {
+    public int obtenerTurno(int idPaciente, Date fecha) {
         if (fecha == null) {
             // Manejar el caso en que fecha sea null
             return 0; // O algún valor predeterminado si no se encuentra ningún turno
         }
 
-        String sql = "SELECT turno FROM turnos WHERE clienteId = ? AND fecha = ?";
+        String sql = "SELECT turno FROM turnos WHERE pacienteId = ? AND fecha = ?";
         try (PreparedStatement stm = con.prepareStatement(sql)) {
-            stm.setInt(1, idCliente);
+            stm.setInt(1, idPaciente);
             stm.setDate(2, new java.sql.Date(fecha.getTime()));
             try (ResultSet rs = stm.executeQuery()) {
                 if (rs.next()) {
@@ -75,6 +77,40 @@ final private Connection con;
             e.printStackTrace();
         }
         return 0; // O algún valor predeterminado si no se encuentra ningún turno
+    }
+    
+    public void resetearTurnosAlInicioDelDia() {
+        // Eliminar todos los registros de turnos de la base de datos
+        String sql = "DELETE FROM turnos";
+        try (PreparedStatement stm = con.prepareStatement(sql)) {
+            stm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al resetear los turnos al inicio del día: " + e.getMessage());
+        }
+    }
+
+    public void almacenarPacientesDelDiaAnterior() {
+        // Obtener los pacientes que tuvieron turno el día anterior
+        // Por ejemplo, asumiendo que la fecha del día anterior es la fecha actual menos un día
+        Date fechaAnterior = new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
+        String sql = "SELECT DISTINCT pacienteId FROM turnos WHERE fecha = ?";
+        try (PreparedStatement stm = con.prepareStatement(sql)) {
+            stm.setDate(1, new java.sql.Date(fechaAnterior.getTime()));
+            try (ResultSet rs = stm.executeQuery()) {
+                // Almacenar los pacientes que tuvieron turno el día anterior
+                PacienteDAO pacienteDAO = new PacienteDAO(con);
+                while (rs.next()) {
+                    int pacienteId = rs.getInt("pacienteId");
+                    Paciente paciente = pacienteDAO.buscarPacientePorId(pacienteId);
+                    // Guardar el cliente en la base de datos de pacientes, si no está ya almacenado
+                    // Aquí debes implementar la lógica para almacenar el cliente en la base de datos de pacientes
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al almacenar los pacientes del día anterior: " + e.getMessage());
+        }
     }
     
   

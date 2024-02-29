@@ -5,21 +5,23 @@ import java.sql.Date;
 public class Turno {
 
 	private Integer IdTurno;
-	private Integer IdCliente;
+	private Integer IdPaciente;
 	private int turno;
 	private Date fecha;
 	
 	public Turno() {
       
     }
-	
-	public Turno(Integer idTurno, Integer idCliente, int turno, Date fecha) {
+
+	public Turno(Integer idTurno, Integer idPaciente, int turno, Date fecha) {
 		super();
 		IdTurno = idTurno;
-		IdCliente = idCliente;
+		IdPaciente = idPaciente;
 		this.turno = turno;
 		this.fecha = fecha;
 	}
+
+
 
 
 	public Integer getIdTurno() {
@@ -30,12 +32,12 @@ public class Turno {
 		IdTurno = idTurno;
 	}
 
-	public Integer getIdCliente() {
-		return IdCliente;
+	public Integer getIdPaciente() {
+		return IdPaciente;
 	}
 
-	public void setIdCliente(Integer idCliente) {
-		IdCliente = idCliente;
+	public void setIdPaciente(Integer IdPaciente) {
+		IdPaciente = IdPaciente;
 	}
 
 	public int getTurno() {

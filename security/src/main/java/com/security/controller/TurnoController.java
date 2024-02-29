@@ -18,12 +18,12 @@ private TurnoDAO turnoDao;
     }
 
 	
-    public void asignarTurno(Integer idCliente, Date fecha) {
-        turnoDao.asignarTurno(idCliente, fecha);
+    public void asignarTurno(Integer idPaciente, Date fecha) {
+        turnoDao.asignarTurno(idPaciente, fecha);
     }
     
-    public int obtenerTurno(int idCliente, Date fecha) {
-        return turnoDao.obtenerTurno(idCliente, fecha);
+    public int obtenerTurno(int idPaciente, Date fecha) {
+        return turnoDao.obtenerTurno(idPaciente, fecha);
     }
     
 }

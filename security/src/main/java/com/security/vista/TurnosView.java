@@ -34,7 +34,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class AltaClientesView extends JFrame {
+public class TurnosView extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
@@ -53,7 +53,7 @@ public class AltaClientesView extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					AltaClientesView frame = new AltaClientesView();
+					TurnosView frame = new TurnosView();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -62,21 +62,31 @@ public class AltaClientesView extends JFrame {
 		});
 	}
 
-    public AltaClientesView() throws SQLException {
-        super("Clientes");
+    public TurnosView() throws SQLException {
+        super("Pacientes");
+        
+     // Inicializar el controlador de turno antes de llamar a resetearTurnosAlInicioDelDia
+        this.turnoController = new TurnoController();
+        
+     // Llama al método para reiniciar los turnos al inicio del día después de inicializar turnoController
+        this.turnoController.resetearTurnosAlInicioDelDia();
 
         this.pacienteController = new PacienteController();
-        this.turnoController = new TurnoController();
+      
 
         // Configurar el nivel de registro para la clase ZipPackage a WARN
         Logger.getLogger("org.apache.poi.openxml4j.opc.ZipPackage").setLevel(Level.WARNING);
         
+        // Configurar la tabla antes de cargar los nuevos datos
         Container container = getContentPane();
         getContentPane().setLayout(null);
-
+        
         configurarCamposDelFormulario(container);
 
         configurarTablaDeContenido(container);
+        
+        // Limpiar la tabla antes de cargar los nuevos datos
+        modelo.setRowCount(0);
         
         cargarTabla();
         
@@ -176,7 +186,6 @@ public class AltaClientesView extends JFrame {
         
     }
 
-    
 
     private void configurarAccionesDelFormulario() {
    

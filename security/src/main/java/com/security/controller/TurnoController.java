@@ -26,4 +26,8 @@ private TurnoDAO turnoDao;
         return turnoDao.obtenerTurno(idPaciente, fecha);
     }
     
+    public void resetearTurnosAlInicioDelDia() {
+    	turnoDao.resetearTurnosAlInicioDelDia();
+    }
+    
 }

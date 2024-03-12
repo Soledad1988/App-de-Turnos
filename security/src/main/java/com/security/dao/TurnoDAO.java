@@ -79,11 +79,28 @@ final private Connection con;
         return 0; // O algún valor predeterminado si no se encuentra ningún turno
     }
     
+    /*
     public void resetearTurnosAlInicioDelDia() {
         // Eliminar todos los registros de turnos de la base de datos
         String sql = "DELETE FROM turnos";
         try (PreparedStatement stm = con.prepareStatement(sql)) {
             stm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al resetear los turnos al inicio del día: " + e.getMessage());
+        }
+    }*/
+    
+    public void resetearTurnosAlInicioDelDia() {
+        // Obtener la fecha actual
+        Date fechaActual = new Date(System.currentTimeMillis());
+
+        // Eliminar todos los registros de turnos de la base de datos para la fecha actual
+        String sql = "DELETE FROM turnos WHERE fecha = ?";
+        try (PreparedStatement stm = con.prepareStatement(sql)) {
+            stm.setDate(1, new java.sql.Date(fechaActual.getTime()));
+            stm.executeUpdate();
+            System.out.println("Turnos reiniciados para la fecha: " + fechaActual);
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Error al resetear los turnos al inicio del día: " + e.getMessage());

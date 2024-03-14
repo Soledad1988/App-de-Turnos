@@ -7,6 +7,13 @@ import com.security.conection.Conexion;
 import com.security.dao.PacienteDAO;
 import com.security.model.Paciente;
 
+import java.sql.SQLException;
+import java.util.List;
+import java.sql.Connection;
+import com.security.conection.Conexion;
+import com.security.dao.PacienteDAO;
+import com.security.model.Paciente;
+
 public class PacienteController {
 
 	private PacienteDAO pacienteDao;
@@ -22,7 +29,13 @@ public class PacienteController {
     }
     
     public List<Paciente> listar() {
-		return this.pacienteDao.listar();
+		return this.pacienteDao.listarPacientesDeHoy();
 	}
+    
+ 
+    public List<Paciente> listarPacientesDeHoy() {
+        return this.pacienteDao.listarPacientesDeHoy();
+     }
+    
     
 }

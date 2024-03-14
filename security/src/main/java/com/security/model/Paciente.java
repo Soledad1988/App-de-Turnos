@@ -1,5 +1,7 @@
 package com.security.model;
 
+import java.time.LocalDate;
+
 public class Paciente {
 
 	private Integer id;
@@ -7,22 +9,25 @@ public class Paciente {
 	private String apellido;
 	private String dni;
 	private String whatsapp;
-	
-	public Paciente(Integer id, String nombre, String apellido, String dni, String whatsapp) {
-		super();
-		this.id = id;
-		this.nombre = nombre;
-		this.apellido = apellido;
-		this.dni = dni;
-		this.whatsapp = whatsapp;
-	}
+	private LocalDate fechaCreacion;
 
-	public Paciente(String nombre, String apellido, String dni, String whatsapp) {
-		this.nombre = nombre;
-		this.apellido = apellido;
-		this.dni = dni;
-		this.whatsapp = whatsapp;
-	}
+	    public Paciente(Integer id, String nombre, String apellido, String dni, String whatsapp, LocalDate fechaCreacion) {
+	        super();
+	        this.id = id;
+	        this.nombre = nombre;
+	        this.apellido = apellido;
+	        this.dni = dni;
+	        this.whatsapp = whatsapp;
+	        this.fechaCreacion = fechaCreacion;
+	    }
+
+	    public Paciente(String nombre, String apellido, String dni, String whatsapp) {
+	        this.nombre = nombre;
+	        this.apellido = apellido;
+	        this.dni = dni;
+	        this.whatsapp = whatsapp;
+	    }
+
 
 	public Integer getId() {
 		return id;
@@ -63,5 +68,14 @@ public class Paciente {
 	public void setWhatsapp(String whatsapp) {
 		this.whatsapp = whatsapp;
 	}
+
+	public LocalDate getFechaCreacion() {
+		return fechaCreacion;
+	}
+
+	public void setFechaCreacion(LocalDate fechaCreacion) {
+		this.fechaCreacion = fechaCreacion;
+	}
 	
+
 }

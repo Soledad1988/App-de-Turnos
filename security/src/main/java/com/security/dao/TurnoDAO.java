@@ -5,6 +5,9 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.security.model.Paciente;
 
@@ -92,25 +95,32 @@ final private Connection con;
     }*/
     
     public void resetearTurnosAlInicioDelDia() {
+        // Obtener la última fecha registrada en la base de datos
+        LocalDate ultimaFechaRegistrada = obtenerUltimaFechaRegistrada();
+        
         // Obtener la fecha actual
-        Date fechaActual = new Date(System.currentTimeMillis());
+        LocalDate fechaActual = LocalDate.now();
 
-        // Eliminar todos los registros de turnos de la base de datos para la fecha actual
-        String sql = "DELETE FROM turnos WHERE fecha = ?";
-        try (PreparedStatement stm = con.prepareStatement(sql)) {
-            stm.setDate(1, new java.sql.Date(fechaActual.getTime()));
-            stm.executeUpdate();
-            System.out.println("Turnos reiniciados para la fecha: " + fechaActual);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error al resetear los turnos al inicio del día: " + e.getMessage());
+        // Comparar la última fecha registrada con la fecha actual
+        if (!fechaActual.equals(ultimaFechaRegistrada)) {
+            // Reiniciar los turnos solo si la fecha actual es diferente a la última fecha registrada
+            String sql = "DELETE FROM turnos WHERE fecha = ?";
+            try (PreparedStatement stm = con.prepareStatement(sql)) {
+                stm.setDate(1, Date.valueOf(fechaActual));
+                stm.executeUpdate();
+                System.out.println("Turnos reiniciados para la fecha: " + fechaActual);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Error al resetear los turnos al inicio del día: " + e.getMessage());
+            }
         }
     }
 
     public void almacenarPacientesDelDiaAnterior() {
-        // Obtener los pacientes que tuvieron turno el día anterior
-        // Por ejemplo, asumiendo que la fecha del día anterior es la fecha actual menos un día
+        // Obtener la fecha del día anterior
         Date fechaAnterior = new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
+
+        // Obtener los pacientes que tuvieron turno el día anterior
         String sql = "SELECT DISTINCT pacienteId FROM turnos WHERE fecha = ?";
         try (PreparedStatement stm = con.prepareStatement(sql)) {
             stm.setDate(1, new java.sql.Date(fechaAnterior.getTime()));
@@ -120,8 +130,9 @@ final private Connection con;
                 while (rs.next()) {
                     int pacienteId = rs.getInt("pacienteId");
                     Paciente paciente = pacienteDAO.buscarPacientePorId(pacienteId);
-                    // Guardar el cliente en la base de datos de pacientes, si no está ya almacenado
-                    // Aquí debes implementar la lógica para almacenar el cliente en la base de datos de pacientes
+                    // Guardar el paciente en la base de datos de pacientes, si no está ya almacenado
+                    // Aquí debes implementar la lógica para almacenar el paciente en la base de datos de pacientes
+                    pacienteDAO.save(paciente);
                 }
             }
         } catch (SQLException e) {
@@ -129,6 +140,27 @@ final private Connection con;
             throw new RuntimeException("Error al almacenar los pacientes del día anterior: " + e.getMessage());
         }
     }
+
+    private LocalDate obtenerUltimaFechaRegistrada() {
+        // Realiza una consulta para obtener la última fecha registrada en la base de datos
+        String sql = "SELECT MAX(fecha) AS ultima_fecha FROM turnos";
+        try (PreparedStatement stm = con.prepareStatement(sql)) {
+            try (ResultSet rs = stm.executeQuery()) {
+                if (rs.next()) {
+                    Date fecha = rs.getDate("ultima_fecha");
+                    return fecha != null ? fecha.toLocalDate() : null;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al obtener la última fecha registrada: " + e.getMessage());
+        }
+        // Si no se encuentra ninguna fecha registrada, devuelve null
+        return null;
+    }
+
+    
+    
     
   
 }

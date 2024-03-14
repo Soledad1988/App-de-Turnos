@@ -11,6 +11,7 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -211,69 +212,75 @@ public class TurnosView extends JFrame {
      
     
     private void guardar() {
-        // Crear un nuevo objeto Cliente con los datos ingresados en la vista
-        Paciente cliente = new Paciente(
+        // Crear un nuevo objeto Paciente con los datos ingresados en la vista
+        Paciente paciente = new Paciente(
                 textoNombre.getText(),
                 textoApellido.getText(),
                 textoDni.getText(),
                 textoWatsapp.getText());
 
-        // Guardar el cliente en la base de datos
-        this.pacienteController.save(cliente);
+        // Guardar el paciente en la base de datos
+        this.pacienteController.save(paciente);
 
-        // Obtener el ID del cliente recién insertado en la base de datos
-        int idCliente = cliente.getId();
+        // Obtener el ID del paciente recién insertado en la base de datos
+        int idPaciente = paciente.getId();
 
         // Obtener la fecha actual
         Date fecha = new Date(System.currentTimeMillis());
 
-        // Asignar el turno al cliente en la base de datos
-        this.turnoController.asignarTurno(idCliente, fecha);
+        // Asignar el turno al paciente en la base de datos
+        this.turnoController.asignarTurno(idPaciente, fecha);
+        
 
         // Actualizar la tabla para reflejar los cambios
         cargarTabla();
 
-        // Obtener el turno actual del cliente DESPUÉS de asignarlo
-        int turno = this.turnoController.obtenerTurno(idCliente, fecha);
+        // Obtener el turno actual del paciente DESPUÉS de asignarlo
+        int turno = this.turnoController.obtenerTurno(idPaciente, fecha);
 
-        if (turno <= 20) {
+        if (turno > 0) {
             JOptionPane.showMessageDialog(this, "Turno asignado con éxito! Su turno es el número: " + turno);
             // Limpiar los campos del formulario después de asignar el turno
             textoNombre.setText("");
             textoApellido.setText("");
             textoDni.setText("");
             textoWatsapp.setText("");
-        
         } else {
             JOptionPane.showMessageDialog(this, "Se han asignado todos los turnos para hoy. Intente mañana.");
         }
     }
+
     
+  
     private void cargarTabla() {
         // Limpiar la tabla antes de cargar los datos
         modelo.setRowCount(0);
 
-        // Llenar la tabla con los clientes y sus turnos
-        List<Paciente> pacientes = ListarPacientes();
-        for (Paciente paciente : pacientes) {
-            // Obtener el turno del cliente para la fecha actual
-            Date fecha = new Date(System.currentTimeMillis());
-            int turno = this.turnoController.obtenerTurno(paciente.getId(), fecha);
+        // Obtener la lista de pacientes de hoy utilizando el controlador de pacientes
+        List<Paciente> pacientes = pacienteController.listarPacientesDeHoy();
 
-            // Agregar los datos del cliente y su turno a la tabla
+        // Llenar la tabla con los pacientes del día actual y sus turnos
+        for (Paciente paciente : pacientes) {
+            // Obtener el turno del paciente para la fecha actual
+            int turno = turnoController.obtenerTurno(paciente.getId(), Date.valueOf(LocalDate.now()));
+
+            // Agregar los datos del paciente y su turno a la tabla
             modelo.addRow(new Object[]{
-            		paciente.getId(),
-            		paciente.getNombre(),
-            		paciente.getApellido(),
-            		paciente.getDni(),
-            		paciente.getWhatsapp(),
-                    turno // Agregar el turno del cliente a la tabla
+                    paciente.getId(),
+                    paciente.getNombre(),
+                    paciente.getApellido(),
+                    paciente.getDni(),
+                    paciente.getWhatsapp(),
+                    turno // Agregar el turno del paciente a la tabla
             });
         }
-        
+
         // Notificar a la tabla que los datos han cambiado y que necesita actualizarse
         modelo.fireTableDataChanged();
     }
+
+
+
     
  // Método para exportar a Excel
     private void exportarAExcel() {

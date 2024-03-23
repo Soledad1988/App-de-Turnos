@@ -3,7 +3,6 @@ package com.security.vista;
 
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,7 +10,6 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -49,7 +47,7 @@ public class TurnosView extends JFrame {
     private JButton botonExportarExcel; // Nuevo botón para exportar a Excel
     private JTextField textoWatsapp;
     
-    
+    /*
     public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -61,7 +59,7 @@ public class TurnosView extends JFrame {
 				}
 			}
 		});
-	}
+	}*/
 
     public TurnosView() throws SQLException {
         super("Pacientes");

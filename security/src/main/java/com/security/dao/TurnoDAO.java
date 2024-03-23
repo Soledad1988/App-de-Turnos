@@ -6,8 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.security.model.Paciente;
 
@@ -82,18 +80,6 @@ final private Connection con;
         return 0; // O algún valor predeterminado si no se encuentra ningún turno
     }
     
-    /*
-    public void resetearTurnosAlInicioDelDia() {
-        // Eliminar todos los registros de turnos de la base de datos
-        String sql = "DELETE FROM turnos";
-        try (PreparedStatement stm = con.prepareStatement(sql)) {
-            stm.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error al resetear los turnos al inicio del día: " + e.getMessage());
-        }
-    }*/
-    
     public void resetearTurnosAlInicioDelDia() {
         // Obtener la última fecha registrada en la base de datos
         LocalDate ultimaFechaRegistrada = obtenerUltimaFechaRegistrada();
@@ -159,8 +145,4 @@ final private Connection con;
         return null;
     }
 
-    
-    
-    
-  
 }

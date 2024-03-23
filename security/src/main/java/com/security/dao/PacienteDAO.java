@@ -40,24 +40,7 @@ public class PacienteDAO {
             throw new RuntimeException(e);
         }
     }
-    /*
-    public List<Paciente> listar() {
-		List<Paciente> paciente = new ArrayList<Paciente>();
-		try {
-			String sql = "SELECT id, nombre, apellido, dni, whatsapp FROM pacientes";
-
-			try (PreparedStatement stm = con.prepareStatement(sql)) {
-				stm.execute();
-
-				transformarResultSetEnPaciente(paciente, stm);
-			}
-			return paciente;
-		} catch (SQLException e) {
-			 e.printStackTrace(); 
-			 
-			throw new RuntimeException(e);
-		}
-	}*/
+  
     
     public List<Paciente> listarPacientesDeHoy() {
         LocalDate fechaActual = LocalDate.now();
@@ -87,6 +70,28 @@ public class PacienteDAO {
     }
 
 
+   
+    public Paciente buscarPacientePorId(int pacienteId) {
+        String sql = "SELECT nombre, apellido, dni, whatsapp, fecha_creacion FROM pacientes WHERE id = ?";
+        try (PreparedStatement stm = con.prepareStatement(sql)) {
+            stm.setInt(1, pacienteId);
+            try (ResultSet rs = stm.executeQuery()) {
+                if (rs.next()) {
+                    String nombre = rs.getString("nombre");
+                    String apellido = rs.getString("apellido");
+                    String dni = rs.getString("dni");
+                    String whatsapp = rs.getString("whatsapp");
+                    LocalDate fechaCreacion = rs.getDate("fecha_creacion").toLocalDate(); // Convertir a LocalDate
+                    return new Paciente(pacienteId, nombre, apellido, dni, whatsapp, fechaCreacion);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al buscar paciente por ID: " + e.getMessage());
+        }
+        return null; // Devuelve null si no se encuentra el paciente con el ID especificado
+    }
+    
     private void transformarResultSetEnPaciente(List<Paciente> pacientes, ResultSet rst) {
         try {
             while (rst.next()) {
@@ -109,25 +114,5 @@ public class PacienteDAO {
         }
     }
     
-    public Paciente buscarPacientePorId(int pacienteId) {
-        String sql = "SELECT nombre, apellido, dni, whatsapp, fecha_creacion FROM pacientes WHERE id = ?";
-        try (PreparedStatement stm = con.prepareStatement(sql)) {
-            stm.setInt(1, pacienteId);
-            try (ResultSet rs = stm.executeQuery()) {
-                if (rs.next()) {
-                    String nombre = rs.getString("nombre");
-                    String apellido = rs.getString("apellido");
-                    String dni = rs.getString("dni");
-                    String whatsapp = rs.getString("whatsapp");
-                    LocalDate fechaCreacion = rs.getDate("fecha_creacion").toLocalDate(); // Convertir a LocalDate
-                    return new Paciente(pacienteId, nombre, apellido, dni, whatsapp, fechaCreacion);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error al buscar paciente por ID: " + e.getMessage());
-        }
-        return null; // Devuelve null si no se encuentra el paciente con el ID especificado
-    }
 
 }

@@ -3,7 +3,7 @@
 ## :bulb: Sistema para control de turnos que opere mediante orden de llegada, con un máximo de 20 turnos diarios. 
 
 ## :bulb: Objetivo: 
-- El pacinte ingresa, se reporta en recepción que necesita ser atendido.
+- El paciente ingresa, se reporta en recepción que necesita ser atendido.
 - La recepcionista hace la primera toma de datos: Nombre, Apellido, DNI, número de whatsApp.
 - Automaticamente el sistema asigna un turno.
 - Se le envía el excel al doctor para visualizar desde dentro de su gabinete quiene es el paciente que continúa.

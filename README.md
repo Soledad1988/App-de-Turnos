@@ -1,6 +1,6 @@
 # Sistema de Gestión de Turnos Médicos
 
-Este sistema de gestión de turnos médicos permite llevar un registro organizado de los pacientes y sus turnos asignados en una clínica u hospital. Facilita la asignación automática de turnos y brinda una vista clara de los pacientes que están siendo atendidos en un momento dado.
+Este sistema de gestión de turnos médicos permite llevar un registro organizado de los pacientes y sus turnos asignados en un consultorio. Facilita la asignación automática de turnos y brinda una vista clara de los pacientes que están siendo atendidos en un momento dado.
 
 ## Instalación
 

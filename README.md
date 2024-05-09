@@ -12,7 +12,7 @@ Este sistema de gestión de turnos médicos permite llevar un registro organizad
 
 - Ingresa los datos del paciente en el formulario de recepción para asignarle un turno automáticamente.
 - Visualiza la lista de pacientes y sus turnos asignados desde la interfaz principal.
-- Notifica a los pacientes sobre su turno asignado mediante WhatsApp u otro medio de comunicación.
+- Notifica al especialista mediante planilla excel exportada del sistema los turnos asignados.
 
 ## Estructura de la Base de Datos
 
